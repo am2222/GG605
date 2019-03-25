@@ -1,0 +1,25 @@
+City,Name,Transit Mode,Latitude,Longitude,Is Main Hub
+Barrie,Allandale Waterfront GO Station,1,44.373401,-79.68598,F
+Barrie,Barrie Bus Terminal,3,44.387776,-79.690978,T
+Barrie,Barrie South GO,3,44.351121,-79.627439,F
+Greater Sudbury,Sudbury Ontario Northland Bus Depot,3,46.504838,-80.938205,T
+Greater Sudbury,Sudbury Train Station,1,46.487365,-80.991904,F
+Hamilton,Hamilton GO Centre,3,43.253217,-79.869159,T
+Hamilton,West Harbour GO Station,1,43.266532,-79.866243,F
+Hamilton,McMaster University GO Bus Terminal,1,43.261662,-79.922791,F
+Hastings Highlands,Maynooth Greyhound Bus Stop,2,45.231021,-77.937785,T
+Kitchener,Charles Street Terminal,3,43.449564,-80.492256,T
+Kitchener,Kitchener GO Station,1,43.455636,-80.493169,F
+London,London Greyhound Station,2,42.980546,-81.250705,T
+London,London Train Station,1,42.981324,-81.24674,F
+North Bay,North Bay Ontario Northland Bus Station,3,46.313901,-79.438546,T
+Ottawa,Ottawa Central Station,3,45.408603,-75.695007,T
+Ottawa,Ottawa Train Station,1,45.416439,-75.651686,F
+Peterborough,Peterborough Greyhound Station,2,44.304691,-78.323045,T
+Peterborough,Peterborough GO Bus Stop,1,44.304604,-78.322419,F
+Port Colborne,Port Colborne City Hall Welland Transit Stop,1,42.885129,-79.252392,T
+Port Colborne,King and Clarence Megabus Stop,2,42.886312,-79.251721,F
+Toronto,Union Station,3,43.645265,-79.380552,T
+Toronto,Yorkdale Bus Terminal,3,43.725101,-79.449055,F
+Toronto,Toronto Greyhound Station,2,43.646652,-79.384396,F
+Toronto,Scarborough Town Centre Bus Terminal,3,43.775108,-79.254744,F
