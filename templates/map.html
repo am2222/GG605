@@ -1,0 +1,1251 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Intercity Travel Modes in Ontario</title>
+
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"></script>
+
+    <!-- Leaflet Default Extent -->
+    <link rel="stylesheet" href="{% static "Plugins/Leaflet.defaultextent-master/dist/leaflet.defaultextent.css" %}"/>
+    <script src="{% static "Plugins/Leaflet.defaultextent-master/dist/leaflet.defaultextent.js" %}"></script>
+    <script src="{% static "jquery-3.3.1.min.js" %}"></script>
+
+    <!-- Leaflet infoButton -->
+    <link rel="stylesheet" href="{% static "Plugins/Leaflet.infoButton-master/dist/leaflet.infoButton.css" %}"/>
+    <script src="{% static "Plugins/Leaflet.infoButton-master/dist/leaflet.infoButton.js" %}"></script>
+    <link rel="stylesheet" href="{% static "leaflet-sidebar.css" %}"/>
+    <link rel="stylesheet" href="{% static "geostats.css" %}"/>
+    <link rel="stylesheet" href="{% static "c3.css" %}"/>
+
+    <script src="{% static "Leaflet.Geodesic.js" %}"></script>
+    <script src="{% static "leaflet.curve.js" %}"></script>
+    <script src="{% static "geostats.min.js" %}"></script>
+    <script src="{% static "leaflet.curve.js" %}"></script>
+    <script src="{% static "chroma.min.js" %}"></script>
+    <script src="{% static "L.Polyline.SnakeAnim.js" %}"></script>
+    <script src="{% static "pace.min.js" %}"></script>
+    <script src="{% static "d3.min.js" %}"></script>
+    <script src="{% static "c3.min.js" %}"></script>
+
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    {#  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <!-- Styling -->
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .info {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background: white;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+
+        .legend {
+            line-height: 18px;
+            color: #555;
+        }
+
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+        }
+
+        .pace {
+            -webkit-pointer-events: none;
+            pointer-events: none;
+
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+
+            -webkit-perspective: 12rem;
+            -moz-perspective: 12rem;
+            -ms-perspective: 12rem;
+            -o-perspective: 12rem;
+            perspective: 12rem;
+
+            z-index: 2000;
+            position: fixed;
+            height: 6rem;
+            width: 6rem;
+            margin: auto;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .pace.pace-inactive .pace-progress {
+            display: none;
+        }
+
+        .pace .pace-progress {
+            position: fixed;
+            z-index: 2000;
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 6rem;
+            width: 6rem !important;
+            line-height: 6rem;
+            font-size: 2rem;
+            border-radius: 50%;
+            background: rgba(34, 153, 221, 0.8);
+            color: #fff;
+            font-family: "Helvetica Neue", sans-serif;
+            font-weight: 100;
+            text-align: center;
+
+            -webkit-animation: pace-theme-center-circle-spin linear infinite 2s;
+            -moz-animation: pace-theme-center-circle-spin linear infinite 2s;
+            -ms-animation: pace-theme-center-circle-spin linear infinite 2s;
+            -o-animation: pace-theme-center-circle-spin linear infinite 2s;
+            animation: pace-theme-center-circle-spin linear infinite 2s;
+
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+            -ms-transform-style: preserve-3d;
+            -o-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+        }
+
+        .pace .pace-progress:after {
+            content: attr(data-progress-text);
+            display: block;
+        }
+
+        @-webkit-keyframes pace-theme-center-circle-spin {
+            from {
+                -webkit-transform: rotateY(0deg)
+            }
+            to {
+                -webkit-transform: rotateY(360deg)
+            }
+        }
+
+        @-moz-keyframes pace-theme-center-circle-spin {
+            from {
+                -moz-transform: rotateY(0deg)
+            }
+            to {
+                -moz-transform: rotateY(360deg)
+            }
+        }
+
+        @-ms-keyframes pace-theme-center-circle-spin {
+            from {
+                -ms-transform: rotateY(0deg)
+            }
+            to {
+                -ms-transform: rotateY(360deg)
+            }
+        }
+
+        @-o-keyframes pace-theme-center-circle-spin {
+            from {
+                -o-transform: rotateY(0deg)
+            }
+            to {
+                -o-transform: rotateY(360deg)
+            }
+        }
+
+        @keyframes pace-theme-center-circle-spin {
+            from {
+                transform: rotateY(0deg)
+            }
+            to {
+                transform: rotateY(360deg)
+            }
+        }
+
+        footer {
+            position: fixed;
+            left: 0px;
+            bottom: 0px;
+
+        }
+
+        .chart {
+            position: absolute;
+            z-index: 900000;
+            bottom: 0px;
+            width: 85%;
+            margin-left: 50px;
+            margin-bottom: 20px;
+        }
+    </style>
+
+</head>
+<body>
+
+<div id="sidebar" class="sidebar collapsed">
+    <!-- Nav tabs -->
+    <div class="sidebar-tabs">
+        <ul role="tablist">
+            <li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+            <li><a href="#profile" role="tab"><i class="fa fa-user"></i></a></li>
+            {#            <li class="disabled"><a href="#messages" role="tab"><i class="fa fa-envelope"></i></a></li>#}
+            {#            <li><a href="https://github.com/Turbo87/sidebar-v2" role="tab" target="_blank"><i class="fa fa-github"></i></a>#}
+            </li>
+        </ul>
+
+        <ul role="tablist">
+            <li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
+        </ul>
+    </div>
+
+    <!-- Tab panes -->
+    <div class="sidebar-content">
+        <div class="sidebar-pane" id="home">
+            <h1 class="sidebar-header">
+                Persona
+                <span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+            </h1>
+
+
+            <p class="lorem">City from</p>
+            <select id="cityfrom">
+                {% for c in cities %}
+                    <option value="{{ c.id }}">
+                        {{ c.name|capfirst }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <p class="lorem">City to</p>
+
+            <select id="cityto">
+                {% for c in cities %}
+                    <option value="{{ c.id }}">
+                        {{ c.name|capfirst }}
+                    </option>
+                {% endfor %}
+            </select>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" checked class="custom-control-input" id="customRadio" name="example"
+                       value="customEx">
+                <label class="custom-control-label" for="customRadio">Select By persona</label>
+            </div>
+
+
+            <p class="lorem">Persona</p>
+            <select id="persona">
+                {% for p in personas %}
+                    <option value="{{ p.id }}">
+                        {{ p.name|capfirst }}
+                    </option>
+                {% endfor %}
+            </select>
+
+
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" class="custom-control-input" id="customRadio2" name="example" value="customEx">
+                <label class="custom-control-label" for="customRadio2">Select by user weights</label>
+            </div>
+
+
+            <p class="lorem">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor
+                invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo
+                duo
+                dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit
+                amet.
+                Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut
+                labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
+                et
+                ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+
+            <form id="ranges">
+                <label for="customRange">Cost range</label>
+                <input disabled type="range" class="custom-range" id="costr" name="costr">
+                <label for="customRange">Distance range</label>
+                <input disabled type="range" class="custom-range" id="distacner" name="distacner">
+                <label for="customRange">Time range</label>
+                <input disabled type="range" class="custom-range" id="timer" name="timer">
+            </form>
+
+            <button type="button" id="route" onclick="route()" class="btn btn-success">Route!</button>
+        </div>
+
+        <div class="sidebar-pane" id="profile">
+            <h1 class="sidebar-header">Phase 2<span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+            </h1>
+            <p class="lorem">Select a city for phase 2 load data</p>
+            <select id="phase2">
+                {% for c in cities %}
+                    <option value="{{ c.id }}">
+                        {{ c.name|capfirst }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <p class="lorem">Select a city for phase 3 load data</p>
+            <select id="cityes">
+                {% for c in cities %}
+                    <option value="{{ c.id }}">
+                        {{ c.name|capfirst }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {#        <div class="sidebar-pane" id="messages">#}
+        {#            <h1 class="sidebar-header">Messages<span class="sidebar-close"><i class="fa fa-caret-left"></i></span></h1>#}
+        {#        </div>#}
+
+        <div class="sidebar-pane" id="settings">
+            <h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-caret-left"></i></span>
+            </h1>
+        </div>
+    </div>
+</div>
+{# <div id="map"></div>#}
+<div class="container-fluid h-100 d-flex flex-column">
+
+    <div class="row h-60 map-container flex-fill" id="map">
+
+    </div>
+    <div id="chat-container" class="chart h-40 ">
+        <div class="row" id="chatFooter">
+            <div class="col-lg-4">
+                <div class="card" style="">
+                    <div id="chart1"></div>
+                    <div class="card-body">
+                        <h5 class="card-title">Time Chart</h5>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-lg-4">
+                <div class="card" style="">
+                    <div id="chart2"></div>
+                    <div class="card-body">
+                        <h5 class="card-title">Cost Chart</h5>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-lg-4">
+                <div class="card" style="">
+                    <div id="chart3"></div>
+                    <div class="card-body">
+                        <h5 class="card-title">Distance Chart</h5>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ch">
+
+</div>
+{#<footer>#}
+{#    <div class="row">#}
+{#        <div class="col-lg-4">#}
+{#            test#}
+{#        </div>#}
+{#        <div class="col-lg-4">#}
+{#            test2#}
+{#        </div>#}
+{#        <div class="col-lg-4">#}
+{#            test3#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{#</footer>#}
+
+<!-- Loading the GeoJSONs -->
+{#<script src="./Data/intercity_transit_hubs.geojson" type="text/javascript"></script>#}
+
+<!-- Referencing the Javascript -->
+<script src="{% static "script.js" %}" type="text/javascript"></script>
+<script src="{% static "leaflet-sidebar.js" %}"></script>
+
+<script>
+    {#    #}
+    {#$('.chat').on('hide.bs.collapse',function(){#}
+    {#    map.invalidateSize();#}
+    {#    $('#chartToggle').text("Show Chat");#}
+    {# }).on('show.bs.collapse',function(){#}
+    {#    map.invalidateSize();#}
+    {#    $('#chartToggle').text("Hide Chat");#}
+    {# });#}
+
+
+    function getcolor(feature, color_x, class_x) {
+        color = color_x;
+        return color[getClass(feature.properties.total_cost, class_x)];
+    }
+
+    // handle both numeric and string (unique values classification)
+    function getClass(val, a) {
+
+        var separator = ' - '
+
+        // return 2;
+        for (var i = 0; i < a.length; i++) {
+            // all classification except uniqueValues
+            if (a[i].indexOf(separator) != -1) {
+                var item = a[i].split(separator);
+                if (val <= parseFloat(item[1])) {
+                    return i;
+                }
+            } else {
+                // uniqueValues classification
+                if (val == a[i]) {
+                    return i;
+                }
+            }
+        }
+    }
+
+    function phase2Style(feature) {
+        var c = getcolor(feature, color_x, class_x)
+
+        return {
+            fillColor: c,
+            fillOpacity: 1,
+            color: '#B04173',
+            weight: 1,
+        };
+    }
+
+    function routeStyle(feature) {
+
+        var color = "#ff4029"
+        switch (feature.properties.transit_mode) {
+            case 1:
+                color = "#2a5aff"
+                break;
+            case 2:
+                color = "#83ff6e"
+                break;
+            default:
+                break;
+        }
+
+
+        if (feature.properties.main) {
+
+            return {
+                fillColor: color,
+                fillOpacity: 0.25,
+                color: color,
+                weight: 5,
+            };
+
+        } else {
+            return {
+                fillColor: color,
+                fillOpacity: 1,
+                color: color,
+                weight: 2,
+            };
+        }
+
+
+        return {
+            fillColor: color,
+            fillOpacity: 1,
+            color: color,
+            {#weight: feature.properties.rank * 3,#}
+        };
+
+        {#feature.properties.rank * 3,#}
+    }
+
+
+    var cities;
+    var styleCities = {
+        radius: 8,
+        fillColor: "#ffffff",
+        color: "#000000",
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.4
+    };
+    $.getJSON("{% url "get_cities" %}", function (data) {
+        cities = L.geoJson(data, {
+            style: styleCities
+        }).bindTooltip(function (layer) {
+                return layer.feature.properties.name; //merely sets the tooltip text
+            }, {permanent: false, opacity: 1}  //then add your options
+        );
+
+
+        map.addLayer(cities);
+    })
+
+    var transit_hubs;
+    $.getJSON("{% url "get_transit_hubs" %}", function (data) {
+        transit_hubs = L.geoJson(data, {
+            pointToLayer: cmarker,
+            onEachFeature: popupHubs
+        });
+
+
+        map.addLayer(transit_hubs);
+
+
+    });
+
+    /****************************************** Adding all layers to map ******************************************/
+
+
+
+    // add basemap layers of the control to the map
+    L.control.layers(baseMaps).addTo(map);
+
+    // Add scale bar to map
+    L.control.scale().addTo(map);
+
+    // Data attribution to CHARIM
+    //map.attributionControl.addAttribution("CHARIM");
+    function addoverlays() {
+
+        if (transit_hubs && cities) {
+
+            // layers that can be toggled in the control
+            var overlayMaps = {
+                "Intercity Transit Hubs": transit_hubs,
+                "City Boundry": cities
+            };
+            L.control.layers(overlayMaps).addTo(map);
+        }
+
+    }
+
+    var sidebar = L.control.sidebar('sidebar').addTo(map);
+    var da_level;
+    var color_x;
+    var class_x;
+    $('#phase2').on('change', function () {
+
+        $.getJSON("{% url "getda" %}" + "?cityid=" + this.value, function (data) {
+            var items = []; // will store values
+            $.each(data.features, function (i, feature) {
+                items.push(feature.properties.total_cost);
+            });
+            serie7 = new geostats(items);
+            serie7.setPrecision(6);
+            color_x = chroma.scale('RdYlGn').domain([serie7.min(), serie7.max()], 5).colors();
+
+            serie7.setColors(color_x);
+            // we get Eq interval classification
+            var a = serie7.getClassQuantile(5);
+            var content = serie7.getHtmlLegend();
+            serie7.legendSeparator = ' ⇔ ';
+            {#var content_flare = serie7.getHtmlLegend(null, 'Customized legend, callback function (<em>here, values wrapped by strong tags<\/em>) and feature count', true, callback_sample, 'distinct');#}
+            {#var content_legend3 = serie7.getHtmlLegend(null, 'Legend (real values, breaking continuous serie)', true, null, 'discontinuous', 'DESC');#}
+
+            class_x = serie7.ranges;
+            if (da_level) {
+                da_level.clearLayers();
+                da_level.addData(data);
+            } else {
+                da_level = L.geoJson(data, {
+                    pointToLayer: cmarker,
+                    onEachFeature: popupDas,
+                    style: phase2Style,
+                });
+                map.addLayer(da_level);
+
+
+            }
+            transit_hubs.bringToFront()
+
+            {#map.removeLayer(da_level);#}
+            sidebar.close()
+            map.fitBounds(da_level.getBounds());
+        });
+    })
+
+    var cfrom;
+    var cto;
+
+    $('#cityfrom').on('change', function () {
+
+        cfrom = this.value;
+        {#route();#}
+    })
+
+    $('#cityto').on('change', function () {
+        cto = this.value;
+        {#route();#}
+    })
+
+    {#var routelayer = L.geoJSON().addTo(map);#}
+    {#routelayer.setStyle(routeStyle);#}
+
+
+    $(document).ready(function () {
+        $("#customRadio").click(function () {
+            if (document.getElementById("customRadio").checked) {
+                $("#ranges :input").prop("disabled", true);
+
+            } else {
+
+                $("#ranges :input").prop("disabled", false);
+            }
+
+        });
+        $("#customRadio2").click(function () {
+            if (document.getElementById("customRadio").checked) {
+                $("#ranges :input").prop("disabled", true);
+
+            } else {
+
+                $("#ranges :input").prop("disabled", false);
+            }
+
+
+        });
+
+
+    });
+
+    var routelayer;
+
+    function route() {
+        sidebar.close()
+        var persona = -1;
+        var wgs = [];
+        if (document.getElementById("customRadio").checked) {
+            persona = document.getElementById("persona").value
+
+        } else {
+
+            wgs = [document.getElementById("costr").value, document.getElementById("distacner").value, document.getElementById("timer").value]
+        }
+
+
+        if (cto && cfrom && cto != cfrom) {
+            $.getJSON("{% url "get_route" %}" + "?cityfrom=" + cfrom + "&cityto=" + cto, function (data) {
+
+                geojsonFeature = []
+                if (persona != -1) {
+                    for (i = 0; i < data.features.length; i++) {
+                        if (data.features[i].properties.persona == persona) {
+                            data.features[i].properties.rank = 3
+
+                            geojsonFeature.push(data.features[i])
+
+                        }
+                    }
+                }
+
+
+                if (document.getElementById("customRadio").checked) {
+                    geojsonFeature = rank_based_on_persona(geojsonFeature)
+
+                } else {
+
+                    geojsonFeature = owa(wgs, data)
+
+                }
+
+                try {
+                    map.removeLayer(routelayer)
+                } catch (e) {
+
+                }
+
+                makeCharts(geojsonFeature)
+                routelayer = L.layerGroup([
+                    L.geoJSON(geojsonFeature, {snakingSpeed: 200, style: routeStyle})
+                ], {snakingPause: 200});
+                routelayer.addTo(map).snakeIn();
+                {#routelayer.addData(geojsonFeature);#}
+            });
+
+
+        } else {
+            alert("please select one city, City from and to should not be the same")
+        }
+    }
+
+    var cahrt1;
+    var chart2;
+    var chart3;
+
+    function makeCharts(data) {
+
+        var time = ['time'];
+        var cost = ['cost'];
+        var distance = ['distance'];
+        var x = ['x'];
+
+        $.each(geojsonFeature, function (i, o) {
+
+            time.push(o.properties.total_time)
+            cost.push(o.properties.total_cost)
+            distance.push(o.properties.total_distance)
+
+            switch (o.properties.transit_mode) {
+                case 1:
+                    x.push('Transit')
+                    break
+                case 2:
+                    x.push('Driving')
+                    break
+                case 3:
+                    x.push('Private')
+                    break
+
+            }
+
+        })
+
+
+        chart1 = c3.generate({
+            data: {
+                x: 'x',
+                columns: [
+                    time,
+                    x
+                ],
+                type: 'bar',
+                color: function (color, d) {
+                    console.log(d)
+                    if (d.value) {
+
+                        switch (d.x) {
+                            case 0:
+                                return "#ff4029";
+                                break
+                            case 1:
+                                return "#2a5aff";
+                                break
+                            case 2:
+                                return "#83ff6e";
+                                break
+
+                        }
+                    }
+
+                    return "#000";
+                }
+            },
+            bar: {
+                width: {
+                    ratio: 0.5 // this makes bar width 50% of length between ticks
+                },
+                // or
+                size: {
+                    height: 50
+                }
+            },
+            bindto: '#chart1',
+            axis: {
+                x: {
+                    type: 'category',
+                    tick: {
+                        // this also works for non timeseries data
+                        fit: true
+                    }
+                }
+            },
+            legend: {
+                show: false
+            }
+        });
+
+
+        chart2 = c3.generate({
+            data: {
+                x: 'x',
+                columns: [
+                    cost,
+                    x
+                ],
+                type: 'bar',
+                color: function (color, d) {
+                    console.log(d)
+                    if (d.value) {
+
+                        switch (d.x) {
+                            case 0:
+                                return "#ff4029";
+                                break
+                            case 1:
+                                return "#2a5aff";
+                                break
+                            case 2:
+                                return "#83ff6e";
+                                break
+
+                        }
+                    }
+
+                    return "#000";
+                }
+            },
+            bar: {
+                width: {
+                    {#ratio: 0.5 // this makes bar width 50% of length between ticks#}
+                },
+                // or
+                size: {
+                    height: 50
+                }
+            },
+            bindto: '#chart2',
+            axis: {
+                x: {
+                    type: 'category',
+                    tick: {
+                        // this also works for non timeseries data
+                        fit: true
+                    }
+                }
+            },
+            legend: {
+                show: false
+            }
+        });
+
+        chart3 = c3.generate({
+            data: {
+                x: 'x',
+                columns: [
+                    distance,
+                    x
+
+                ],
+                type: 'bar',
+                color: function (color, d) {
+                    console.log(d)
+                    if (d.value) {
+
+                        switch (d.x) {
+                            case 0:
+                                return "#ff4029";
+                                break
+                            case 1:
+                                return "#2a5aff";
+                                break
+                            case 2:
+                                return "#83ff6e";
+                                break
+
+                        }
+                    }
+
+                    return "#000";
+                }
+            },
+            bar: {
+                width: {
+                    ratio: 0.5 // this makes bar width 50% of length between ticks
+                },
+                // or
+                size: {
+                    height: 50,
+                    {#width:100#}
+                }
+            },
+            bindto: '#chart3',
+            axis: {
+                x: {
+                    type: 'category',
+                    tick: {
+                        // this also works for non timeseries data
+                        fit: true
+                    }
+                }
+            },
+            legend: {
+                show: false
+            }
+        });
+
+        chart1.resize()
+        chart2.resize()
+        chart3.resize()
+    }
+
+
+    function getCitiesStyle(f) {
+        return {
+            color: 'red',
+            weight: 3
+        }
+    }
+
+    var cities_connections;
+    $('#cityes').on('change', function () {
+
+        sidebar.close()
+        $.getJSON("{% url "get_city_connections" %}" + "?cityid=" + this.value, function (data) {
+            var lines = [];
+            for (i = 0; i < data.length; i++) {
+
+                var latlngs = [];
+
+                var latlng2 = [data[i].c1_long, data[i].c1_lat],
+                    latlng1 = [data[i].c2_long, data[i].c2_lat];
+                var offsetX = latlng2[1] - latlng1[1],
+                    offsetY = latlng2[0] - latlng1[0];
+
+                var r = Math.sqrt(Math.pow(offsetX, 2) + Math.pow(offsetY, 2)),
+                    theta = Math.atan2(offsetY, offsetX);
+
+                var thetaOffset = (3.14 / 10);
+
+                var r2 = (r / 2) / (Math.cos(thetaOffset)),
+                    theta2 = theta + thetaOffset;
+
+                var midpointX = (r2 * Math.cos(theta2)) + latlng1[1],
+                    midpointY = (r2 * Math.sin(theta2)) + latlng1[0];
+
+                var midpointLatLng = [midpointY, midpointX];
+
+                latlngs.push(latlng1, midpointLatLng, latlng2);
+
+
+                var color = "#ff4029"
+                switch (data[i].transit_mode) {
+                    case 1:
+                        color = "#2a5aff"
+                        break;
+                    case 2:
+                        color = "#83ff6e"
+                        break;
+                    default:
+                        break;
+                }
+
+                var curvedPath = L.curve(
+                    [
+                        'M', latlng1,
+                        'Q', midpointLatLng,
+                        latlng2
+                    ], {
+                        color: color,
+                        fill: false,
+                        dashArray: '5',
+                        animate: {duration: 3000, iterations: Infinity, delay: 1000}
+                    }).addTo(map);
+
+                var c1 = new L.LatLng(data[i].c1_long, data[i].c1_lat);
+                var c2 = new L.LatLng(data[i].c2_long, data[i].c2_lat);
+                var line = L.polyline([c2, c1]);
+                {#line.addTo(map).snakeIn();#}
+                lines.push(curvedPath)
+                {#var route = L.layerGroup([#}
+                {#    L.marker(airport1),#}
+                {#    L.polyline([airport1, airport2]),#}
+                {#    L.marker(airport2)#}
+                {#], {snakingPause: 200});#}
+                {#route.addTo(map).snakeIn();#}
+
+                {#curves([data[i].c1_lat, data[i].c1_long], [data[i].c1_lat, data[i].c2_long])#}
+                {#var test = []#}
+                {#test.push([c1, c2]);#}
+                {#var Geodesic1 = L.geodesic(test, {#}
+                {#    weight: data[i].cost + 6,#}
+                {#    opacity: 1,#}
+                {#steps: 500,#}
+                {#    color: 'red',#}
+                {#    dash: 0.5,#}
+                {#    lineCap: 'butt',#}
+                {# }).addTo(map);        #}
+            }
+
+            if (cities_connections) {
+                map.removeLayer(cities_connections)
+            }
+            cities_connections = L.layerGroup(lines, {snakingPause: 150});
+
+            cities_connections.addTo(map).snakeIn();
+            {#map.fitBounds(L.FeatureGroup.getBounds(cities_connections));#}
+
+
+        })
+        ;
+    })
+
+
+    function owa(user_wgts, options, operator = 'max') {
+
+        $.each(options.features, function (i, feature) {
+            {#var objs = []#}
+            var objs = [1 / feature.properties.total_cost, 1 / (feature.properties.total_time / 3600),
+                1 / (feature.properties.total_distance / 1000)]
+            {#var ratio = Math.max.apply(Math, objs) / 100,#}
+            {#    l = objs.length,#}
+            {#    i;#}
+            {##}
+            {#for (i = 0; i < l; i++) {#}
+            {#    objs[i] = Math.round(objs[i] / ratio);#}
+            {# }#}
+
+            switch (operator) {
+                case "max":
+                    objs = objs.sort(function (a, b) {
+                        return b - a
+                    })
+                    break;
+                case       "min":
+                    objs = objs.sort(function (a, b) {
+                        return a - b
+                    })
+                    break;
+                case  "average":
+
+                    break;
+
+
+            }
+            var rank = 0;
+            $.each(objs, function (i, o) {
+                rank += o * user_wgts[i]
+            })
+            options.features[i].properties.rank = rank
+            console.log(i + " ranked as " + rank)
+
+
+        });
+
+
+        var max_1 = 0;
+        var max_2 = 0;
+        var max_3 = 0;
+
+        var highest = 0;
+        var o1;
+        var o2;
+        var o3;
+        var hi;
+        $.each(options.features, function (i, o) {
+
+            switch (o.properties.transit_mode) {
+
+                case 1:
+                    if (o.properties.rank > max_1) {
+                        max_1 = o.properties.rank
+                        if (o.properties.rank > highest) {
+                            highest = o.properties.rank
+                            {#o.properties.main = true;#}
+                            hi = o;
+
+                        }
+                        o1 = o;
+                    }
+
+                    break;
+                case 2:
+                    if (o.properties.rank > max_2) {
+                        max_2 = o.properties.rank
+                        if (o.properties.rank > highest) {
+                            highest = o.properties.rank
+                            {#o.properties.main = true;#}
+                            hi = o;
+
+                        }
+                        o2 = o;
+                    }
+                    break;
+
+
+                case 3:
+                    if (o.properties.rank > max_3) {
+                        max_3 = o.properties.rank
+                        if (o.properties.rank > highest) {
+                            highest = o.properties.rank
+                            {#o.properties.main = true;#}
+                            hi = o;
+
+                        }
+                        o3 = o;
+                    }
+                    break;
+
+
+            }
+
+
+        });
+        hi.properties.main = true;
+        var final = [o1, o2, o3];
+        for (i = 0; i < final.length; i++) {
+            if (final[i].properties.rank == hi.properties.rank) {
+
+                final[i] = hi
+            }
+        }
+
+        return final;
+
+    }
+
+
+    function popupDas(feature, layer) {
+        var hubCity = feature.properties.City,
+            hubName = feature.properties.Name,
+            hubMode = feature.properties.Transit_Mode,
+            hubMain = feature.properties.Is_Main_Hub;
+        chart()
+        // layer.bindPopup($('#ch').html());
+        layer.bindPopup(chart());
+    }
+
+
+    function chart(d) {
+        // set the dimensions and margins of the graph
+        var width = 450
+        height = 450
+        margin = 40
+
+// The radius of the pieplot is half the width or half the height (smallest one). I substract a bit of margin.
+        var radius = Math.min(width, height) / 2 - margin
+
+// append the svg object to the div called 'my_dataviz'
+        var svg = d3.create("div")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+// Create dummy data
+        var data = {a: 9, b: 20, c: 30, d: 8, e: 12, f: 3, g: 7, h: 14}
+
+// set the color scale
+        var color = d3.scaleOrdinal()
+            .domain(["a", "b", "c", "d", "e", "f", "g", "h"])
+            .range(d3.schemeDark2);
+
+// Compute the position of each group on the pie:
+        var pie = d3.pie()
+            .sort(null) // Do not sort group by size
+            .value(function (d) {
+                return d.value;
+            })
+        var data_ready = pie(d3.entries(data))
+
+// The arc generator
+        var arc = d3.arc()
+            .innerRadius(radius * 0.5)         // This is the size of the donut hole
+            .outerRadius(radius * 0.8)
+
+// Another arc that won't be drawn. Just for labels positionning
+        var outerArc = d3.arc()
+            .innerRadius(radius * 0.9)
+            .outerRadius(radius * 0.9)
+
+// Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+        svg
+            .selectAll('allSlices')
+            .data(data_ready)
+            .enter()
+            .append('path')
+            .attr('d', arc)
+            .attr('fill', function (d) {
+                return (color(d.data.key))
+            })
+            .attr("stroke", "white")
+            .style("stroke-width", "2px")
+            .style("opacity", 0.7)
+
+// Add the polylines between chart and labels:
+        svg
+            .selectAll('allPolylines')
+            .data(data_ready)
+            .enter()
+            .append('polyline')
+            .attr("stroke", "black")
+            .style("fill", "none")
+            .attr("stroke-width", 1)
+            .attr('points', function (d) {
+                var posA = arc.centroid(d) // line insertion in the slice
+                var posB = outerArc.centroid(d) // line break: we use the other arc generator that has been built only for that
+                var posC = outerArc.centroid(d); // Label position = almost the same as posB
+                var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2 // we need the angle to see if the X position will be at the extreme right or extreme left
+                posC[0] = radius * 0.95 * (midangle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
+                return [posA, posB, posC]
+            })
+
+// Add the polylines between chart and labels:
+        svg
+            .selectAll('allLabels')
+            .data(data_ready)
+            .enter()
+            .append('text')
+            .text(function (d) {
+                console.log(d.data.key);
+                return d.data.key
+            })
+            .attr('transform', function (d) {
+                var pos = outerArc.centroid(d);
+                var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+                pos[0] = radius * 0.99 * (midangle < Math.PI ? 1 : -1);
+                return 'translate(' + pos + ')';
+            })
+            .style('text-anchor', function (d) {
+                var midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+                return (midangle < Math.PI ? 'start' : 'end')
+            })
+
+        return svg.node();
+        ///////////////////////////////
+        var chart = c3.generate({
+            data: {
+                // iris data from R
+                columns: [
+                    ['data1', 30],
+                    ['data2', 120],
+                ],
+                type: 'pie',
+                onclick: function (d, i) {
+                    console.log("onclick", d, i);
+                },
+                onmouseover: function (d, i) {
+                    console.log("onmouseover", d, i);
+                },
+                onmouseout: function (d, i) {
+                    console.log("onmouseout", d, i);
+                }
+            },
+            bindto: "#ch"
+        });
+        return chart
+    }
+
+
+</script>
+
+</body>
+</html>

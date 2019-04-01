@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, re_path
 
 from gg506.views import importshp, runmodel, importda, importhub, importprivate, generatematrixes, calculatephase2, \
-    get_da, get_city_connections, get_transit_hubs, get_route, update_da_totalcost
+    get_da, get_city_connections, get_transit_hubs, get_route, update_da_totalcost, import_cost, app_view, get_cities
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,5 +33,8 @@ urlpatterns = [
     re_path('get_transit_hubs/', get_transit_hubs, name="get_transit_hubs"),
     re_path('get_route/', get_route, name="get_route"),
     re_path('update_da_totalcost/', update_da_totalcost, name="update_da_totalcost"),
+    re_path('import_cost/', import_cost, name="import_cost"),
+    re_path('app/',app_view , name="app_view"),
+    re_path('get_cities/',get_cities , name="get_cities"),
 
 ]
