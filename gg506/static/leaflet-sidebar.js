@@ -189,7 +189,11 @@ L.Control.Sidebar = L.Control.extend(/** @lends L.Control.Sidebar.prototype */ {
             this.fire('closing');
             L.DomUtil.addClass(this._sidebar, 'collapsed');
         }
-        $("#chat-container").show(1000);
+
+        if(charts){
+             $("#chat-container").show(1000);
+        }
+
 
         try {
             cahrt1.resize()

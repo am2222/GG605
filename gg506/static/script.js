@@ -20,27 +20,19 @@ var baseMaps = {
 var map = L.map('map', {
     center: [44.074817, -78.995836], // default centre
     zoom: 8, // default zoom,
-    defaultExtentControl: true, // default extent button
     layers: [CartoDB_Voyager]
 });
 
 
-// Disclaimer text for the splash
-var disclaimer = "<h2>Travelling from City to City</h2>"
-    + "<h3>Comparing intercity transit modes and policy implications</h3>"
-    + "<p><b>Objectives</b>"
-    + "<ol><li>Understand inercity transit modes in southern Ontario</li><li>Visualize intercity transit factors and tradeoffs</li><li>Characterize variability in access to intercity transit at the city scale</li></ol>"
-;
+L.control.defaultExtent({
+      position: 'topright'})
+  .addTo(map);
 
 
-// splash/info button
-// var infoButton = L.control.infoButton({
-//     position: 'topRight',
-//     linkTitle: 'About',
-//     title: '<h2>About</h2>',
-//     show: false,
-//     html: disclaimer
-// }).addTo(map);
+
+
+
+
 
 
 /****************************************** Data Layers and Styling ******************************************/

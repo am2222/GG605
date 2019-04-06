@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="{% static "leaflet-sidebar.css" %}"/>
     <link rel="stylesheet" href="{% static "geostats.css" %}"/>
     <link rel="stylesheet" href="{% static "c3.css" %}"/>
+    <link rel="stylesheet" href="{% static "easy-button.css" %}"/>
 
     <script src="{% static "Leaflet.Geodesic.js" %}"></script>
     <script src="{% static "leaflet.curve.js" %}"></script>
@@ -36,6 +37,7 @@
     <script src="{% static "pace.min.js" %}"></script>
     <script src="{% static "d3.min.js" %}"></script>
     <script src="{% static "c3.min.js" %}"></script>
+    <script src="{% static "easy-button.js" %}"></script>
 
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -394,6 +396,8 @@
 <script src="{% static "leaflet-sidebar.js" %}"></script>
 
 <script>
+
+    var charts=false;
     {#    #}
     {#$('.chat').on('hide.bs.collapse',function(){#}
     {#    map.invalidateSize();#}
@@ -552,7 +556,8 @@
     var color_x;
     var class_x;
     $('#phase2').on('change', function () {
-
+ $("#chat-container").hide(1000);
+ charts=false;
         $.getJSON("{% url "getda" %}" + "?cityid=" + this.value, function (data) {
             var items = []; // will store values
             $.each(data.features, function (i, feature) {
@@ -568,7 +573,7 @@
             var content = serie7.getHtmlLegend();
             serie7.legendSeparator = ' ⇔ ';
             {#var content_flare = serie7.getHtmlLegend(null, 'Customized legend, callback function (<em>here, values wrapped by strong tags<\/em>) and feature count', true, callback_sample, 'distinct');#}
-            {#var content_legend3 = serie7.getHtmlLegend(null, 'Legend (real values, breaking continuous serie)', true, null, 'discontinuous', 'DESC');#}
+            var content_legend3 = serie7.getHtmlLegend(null, 'Legend (real values, breaking continuous serie)', true, null, 'discontinuous', 'DESC');
 
             class_x = serie7.ranges;
             if (da_level) {
@@ -577,7 +582,7 @@
             } else {
                 da_level = L.geoJson(data, {
                     pointToLayer: cmarker,
-                    onEachFeature: popupDas,
+                    {#onEachFeature: popupDas,#}
                     style: phase2Style,
                 });
                 map.addLayer(da_level);
@@ -596,7 +601,6 @@
     var cto;
 
     $('#cityfrom').on('change', function () {
-
         cfrom = this.value;
         {#route();#}
     })
@@ -614,20 +618,25 @@
         $("#customRadio").click(function () {
             if (document.getElementById("customRadio").checked) {
                 $("#ranges :input").prop("disabled", true);
+                $('#persona').prop("disabled", false);
+
 
             } else {
 
                 $("#ranges :input").prop("disabled", false);
+                $('#persona').prop("disabled", true);
             }
 
         });
         $("#customRadio2").click(function () {
             if (document.getElementById("customRadio").checked) {
                 $("#ranges :input").prop("disabled", true);
+                $('#persona').prop("disabled", false);
 
             } else {
 
                 $("#ranges :input").prop("disabled", false);
+                $('#persona').prop("disabled", true);
             }
 
 
@@ -639,7 +648,11 @@
     var routelayer;
 
     function route() {
+
         sidebar.close()
+        charts=true;
+
+        $("#chat-container").show(1000);
         var persona = -1;
         var wgs = [];
         if (document.getElementById("customRadio").checked) {
@@ -701,6 +714,7 @@
     var chart3;
 
     function makeCharts(data) {
+
 
         var time = ['time'];
         var cost = ['cost'];
@@ -906,7 +920,8 @@
 
     var cities_connections;
     $('#cityes').on('change', function () {
-
+        charts=false;
+         $("#chat-container").hide(1000);
         sidebar.close()
         $.getJSON("{% url "get_city_connections" %}" + "?cityid=" + this.value, function (data) {
             var lines = [];
@@ -1244,6 +1259,32 @@
         return chart
     }
 
+    // Disclaimer text for the splash
+var disclaimer = "<h2>Travelling from City to City</h2>"
+    + "<h3>Comparing intercity transit modes and policy implications</h3>"
+    + "<p><b>Objectives</b>"
+    + "<ol><li>Understand inercity transit modes in southern Ontario</li><li>Visualize intercity transit factors and tradeoffs</li><li>Characterize variability in access to intercity transit at the city scale</li></ol>"
+;
+
+// splash/info button
+var infoButton = L.control.infoButton({
+    position: 'topright',
+    linkTitle: 'About',
+    title: '<h2>About</h2>',
+    show: false,
+    html: disclaimer
+}).addTo(map);
+map.zoomControl.setPosition('topright');
+
+
+{##}
+{#//home#}
+{#var faStar = L.map('fa-star', {scrollWheelZoom: false}).setView([37.8, -96], 4);#}
+{#L.easyButton('fa-star', function(btn, map){#}
+    {#var antarctica = [-77,70];#}
+{#    map.fitBounds(transit_hubs.getBounds());#}
+{##}
+{# }).addTo(map);#}
 
 </script>
 

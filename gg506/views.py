@@ -119,46 +119,46 @@ def calculatephase2(request):
     # 44 Toronto
     # city id 89 da id 35201916
 
-    cities = City.objects.filter(id=89)
-    for c in cities:
+    # cities = City.objects.filter(id=87)
+    # for c in cities:
         # das = Da.objects.filter(city=c, id_gt=35250599).order_by('id')
-        das = Da.objects.filter(city=c, id__gt=35203174).order_by('id')
-        # das = Da.objects.filter(city=c).order_by('id')
-        for da in das:
-            print("city id", c.id, "da id", da.id)
-            nearest_hub = Hub.objects.filter()
-            from django.contrib.gis.db.models.functions import Distance
+        # das = Da.objects.filter(city=c, id__gt=35250599).order_by('id')
+    das = Da.objects.filter(total_cost=0).order_by('id')
+    for da in das:
+        print("city id", da.city.id, "da id", da.id)
+        nearest_hub = Hub.objects.filter()
+        from django.contrib.gis.db.models.functions import Distance
 
-            nearest_hub = Hub.objects.annotate(
-                distance=Distance('geom', da.geom.centroid)
-            ).order_by('distance').first()
+        nearest_hub = Hub.objects.annotate(
+            distance=Distance('geom', da.geom.centroid)
+        ).order_by('distance').first()
 
-            #             I have to route from da.centroid to hub
-            print(nearest_hub.id, c.name)
+        #             I have to route from da.centroid to hub
+        print(nearest_hub.id, da.city.name)
 
-            directions_result = gmaps.directions((da.geom.centroid[1], da.geom.centroid[0]),
-                                                 (nearest_hub.geom.centroid[1], nearest_hub.geom.centroid[0]),
-                                                 mode='driving',
-                                                 # transit_mode='bus|rail',
-                                                 )
-            line = ogr.Geometry(ogr.wkbLineString)
-            if len(directions_result) == 0:
-                print("error")
-                continue
+        directions_result = gmaps.directions((da.geom.centroid[1], da.geom.centroid[0]),
+                                             (nearest_hub.geom.centroid[1], nearest_hub.geom.centroid[0]),
+                                             mode='driving',
+                                             # transit_mode='bus|rail',
+                                             )
+        line = ogr.Geometry(ogr.wkbLineString)
+        if len(directions_result) == 0:
+            print("error")
+            continue
 
-            main_time = 0
-            main_distance = 0
-            for i in directions_result[0]['legs'][0]['steps']:
-                main_time += i['duration']['value']
-                main_distance += i['distance']['value']
-                for point in polyline.decode(i['polyline']['points']):
-                    line.AddPoint(point[1], point[0])
+        main_time = 0
+        main_distance = 0
+        for i in directions_result[0]['legs'][0]['steps']:
+            main_time += i['duration']['value']
+            main_distance += i['distance']['value']
+            for point in polyline.decode(i['polyline']['points']):
+                line.AddPoint(point[1], point[0])
 
-            line.SetCoordinateDimension(2)
+        line.SetCoordinateDimension(2)
 
-            r = InteraRoute(da=da, hub=nearest_hub, total_time=main_time,
-                            total_distance=main_distance,
-                            geom=line.ExportToWkt()).save()
+        r = InteraRoute(da=da, hub=nearest_hub, total_time=main_time,
+                        total_distance=main_distance,
+                        geom=line.ExportToWkt()).save()
 
 
 def importprivate(request):
