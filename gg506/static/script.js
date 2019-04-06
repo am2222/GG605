@@ -69,21 +69,36 @@ function cmarker(feature, latlng) {
 function rank_based_on_persona(options) {
 
     var sum = 0;
+ var low=100000000;
     $.each(options, function (i, feature) {
         var total = feature.properties.total_cost + feature.properties.total_time + feature.properties.total_distance;
         sum += total;
         options[i].properties.total = total
+        if(low>total ){
+            low=total ;
+        }
+
+    });
+
+    // $.each(options, function (i, feature) {
+    //
+    //
+    //     // options[i].properties.rank = 1 - (options[i].properties.total / sum)
+    //
+    //
+    // });
+        var finals=[];
+     $.each(options, function (i, feature) {
+        if(low==feature.properties.total ){
+           feature.properties.main=true ;
+
+        }
+        finals.push(feature);
+        // options[i].properties.rank = 1 - (options[i].properties.total / sum)
 
 
     });
-
-    $.each(options, function (i, feature) {
-
-        options[i].properties.rank = 1 - (options[i].properties.total / sum)
-
-
-    });
-    return options;
+    return finals;
 }
 
 
